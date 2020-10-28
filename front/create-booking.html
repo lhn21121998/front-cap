@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>Visitor name: </p><input type="text" id="txtVisitor" /><br />
+    <p>Phone: </p><input type="number" id="txtPhone" /><br />
+    <p>Language</p>
+    <select id="txtLanguage">
+        <option value="Tiếng Việt" selected>Tiếng Việt</option>
+        <option value="Tiếng Anh">Tiếng Anh</option>
+        <option value="Tiếng Nhật">Tiếng Nhật</option>
+    </select>
+    <p>Quantity</p><input type="number" id="txtQuantity" />
+    <p>Start time</p><input type="text" id="txtTime" />
+    <button onclick="createBook();">Create</button>
+</body>
+<script>
+    async function createBook() {
+        let visitor = document.getElementById('txtVisitor').value;
+        let phone = document.getElementById('txtPhone').value;
+        
+        const responseV = await fetch('http://localhost:8080/visitor', {
+            method:'POST',
+            headers: {
+                "Content-type": "application/json",
+                "Accept": "application/json, text/plain, */*"
+            },
+            body: JSON.stringify ({
+                "fullname": visitor,
+                "phone": phone
+            })
+        });
+
+        const visitorData = await responseV.json();
+
+        let language = document.getElementById('txtLanguage').value;
+        let quantity = document.getElementById('txtQuantity').value;
+        let startTime = document.getElementById('txtTime').value;
+
+        //
+        let format = startTime.split(" ");
+        let date = format[0];
+        let time = format[1];
+        let datetime = format[0]+'T'+format[1]+':00';
+        //
+
+        const username = sessionStorage.getItem("username");
+        const responseAcc = await fetch('http://localhost:8080/user?username=' + username);
+        const account = await responseAcc.json();
+
+        const responseTour = await fetch('http://localhost:8080/tour', {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json",
+                "Accept": "application/json, text/plain, */*"
+            },
+            body: JSON.stringify ({
+                "language": language,
+                "quantity": quantity,
+                "username": account,
+                "visitorid": visitorData,
+                "startTime": datetime,
+            })
+        })
+
+        
+    }
+</script>
+</html>
